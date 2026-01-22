@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "GradescopeToCal",
-    "version": "0.0.1",
-    "description": "Automatically adds Gradescope assignments to a user's Google Calendar.",
+    "version": "1.1.0",
+    "description": "Automatically scrapes Gradescope assignments and syncs them to Google Calendar.",
     "icons": {
         "16": "assets/icons/icon16.png",
         "48": "assets/icons/icon48.png",
@@ -17,20 +17,33 @@
         }
     },
     "permissions": [
-        "activeTab",
         "storage",
-        "scripting"
+        "scripting",
+        "activeTab",
+        "identity"
     ],
+    "host_permissions": [
+        "https://www.gradescope.com/*",
+        "https://www.googleapis.com/*"
+    ],
+    "oauth2": {
+        "client_id": "1021365920101-u8c5oe6hd4ogcumtjqbfgg3d22l62a1t.apps.googleusercontent.com",
+        "scopes": [
+            "https://www.googleapis.com/auth/tasks"
+        ]
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
     "content_scripts": [
         {
-            "matches": ["*://*.gradescope.com/*"],
-            "js": ["./scripts/script.js"]
-        }
-    ],
-    "web_accessible_resources": [
-        {
-            "resources": ["./scripts/script.js"],
-            "matches": ["*://*.gradescope.com/*"]
+            "matches": [
+                "https://www.gradescope.com/courses/*",
+                "http://localhost:8000/*",
+                "http://127.0.0.1:8000/*"
+            ],
+            "js": ["content.js"],
+            "run_at": "document_idle"
         }
     ]
 }

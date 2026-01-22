@@ -1,36 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>GradescopeToCal</title>
-  <link rel="stylesheet" href="src/styles.css">
-  <link href=”./output.css” rel=”stylesheet”>
-  <script src="./scripts/popup.js"></script>
-  <script src="./scripts/script.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradescopeToCal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
-
 <body>
-  <h1>GradescopeToCal</h1>
-<div id="AAS" class="assignments-container"></div>
-<table class="assignmentTable">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Date</th>
-      <th>Add</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-      <td>Malcolm Lockyer</td>
-      <td>1961</td>
-    </tr>
-  </tbody>
-</table>
-  <button id="syncButton">Sync Assignments</button> <!-- call the function parseAssignments when button is clicked -->
-  <div id="status"></div>
-  <div id="assignmentList" class="assignments-container"></div>
+    <header class="header">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4Z" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M8 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 10H21" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 14L11 17L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h1>GradescopeToCal</h1>
+        </div>
+    </header>
+
+    <main class="main">
+        <div id="status" class="status-bar"></div>
+        
+        <div class="table-container">
+            <table id="assignmentTable" class="assignment-table">
+                <thead>
+                    <tr>
+                        <th>Assignment</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="assignmentBody">
+                    <!-- Assignments will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 6V18M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <p>No assignments found</p>
+            <span class="empty-hint">Navigate to a Gradescope course page to scrape assignments</span>
+        </div>
+
+        <div id="loadingState" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Loading assignments...</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-buttons">
+            <button id="refreshBtn" class="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4V9H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 20V15H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3.51 15A9 9 0 0 0 18.36 18.36L20 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh
+            </button>
+            <button id="syncBtn" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V5C3 3.9 3.9 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Sync to Tasks
+            </button>
+        </div>
+        <span id="lastUpdated" class="last-updated"></span>
+    </footer>
+
+    <script src="popup.js"></script>
 </body>
 </html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!-- 
+    GradescopeToCal Test Page
+    This file mimics the Gradescope "Assignments" table structure for local development and testing.
+    Contains 5 sample assignments with varying statuses.
+    
+    To test: Open this file in Chrome and load the unpacked extension.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATH241-PM040-SP2026 Dashboard | Gradescope (Test Page)</title>
+    <style>
+        /* Minimal styling to mimic Gradescope appearance */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .courseHeader {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .courseHeader--title {
+            margin: 0 0 5px 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .courseHeader--term {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+            font-weight: normal;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .table th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eee;
+        }
+        .table td, .table th[scope="row"] {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+        }
+        .table--primaryLink button {
+            background: none;
+            border: none;
+            color: #1a73e8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+        }
+        .table--primaryLink button:hover {
+            text-decoration: underline;
+        }
+        .submissionStatus {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .submissionStatus--bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .submissionStatus-success .submissionStatus--bullet { background: #34a853; }
+        .submissionStatus-warning .submissionStatus--bullet { background: #fbbc04; }
+        .submissionStatus-error .submissionStatus--bullet { background: #ea4335; }
+        .submissionStatus-info .submissionStatus--bullet { background: #4285f4; }
+        .submissionStatus--text {
+            font-size: 14px;
+            color: #555;
+        }
+        .submissionTimeChart {
+            font-size: 13px;
+        }
+        .submissionTimeChart--dueDate {
+            color: #666;
+        }
+        .progressBar {
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            margin: 8px 0;
+        }
+        .progressBar--fill {
+            height: 100%;
+            background: #1a73e8;
+            border-radius: 2px;
+        }
+        .progressBar--caption {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+        }
+        .test-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .test-banner strong { color: #664d03; }
+    </style>
+</head>
+<body>
+    <div class="test-banner">
+        <strong>⚠️ Test Page:</strong> This is a test HTML file for the GradescopeToCal Chrome Extension. 
+        Load the extension and click the popup to verify assignments are scraped correctly.
+    </div>
+
+    <header class="courseHeader">
+        <h1 class="courseHeader--title">MATH241-PM040-SP2026</h1>
+        <h2 class="courseHeader--term">Spring 2026 - Test Course</h2>
+    </header>
+
+    <section>
+        <table class="table" id="assignments-student-table">
+            <caption class="sr-only">Assignments List</caption>
+            <thead>
+                <tr role="row">
+                    <th scope="col">Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Due Date (EST)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Assignment 1: Calculus Quiz 1 - Submitted -->
+                <tr role="row" class="odd">
+                    <th class="table--primaryLink" role="rowheader" scope="row">
+                        <button class="js-submitAssignment" 
+                                data-assignment-id="1001" 
+                                data-assignment-title="Calculus Quiz 1"
+                                aria-label="View Calculus Quiz 1">
+                            Calculus Quiz 1
+                        </button>
+                    </th>
+                    <td class="submissionStatus submissionStatus-success">
+                        <div class="submissionStatus--bullet" aria-hidden="true"></div>
+                        <div class="submissionStatus--text">Submitted</div>
+                    </td>
+                    <td>
+                        <div class="submissionTimeChart">
+                            <time class="submissionTimeChart--dueDate" 
+                                  datetime="2026-01-25 23:59:00 -0500"
+                                  aria-label="Due at January 25 at 11:59PM">
+                                Jan 25 at 11:59PM
+                            </time>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Assignment 2: Physics Lab Report - Incomplete -->
+                <tr role="row" class="even">
+                    <th class="table--primaryLink" role="rowheader" scope="row">
+                        <button class="js-submitAssignment" 
+                                data-assignment-id="1002" 
+                                data-assignment-title="Physics Lab Report"
+                                aria-label="Submit Physics Lab Report">
+                            Physics Lab Report
+                        </button>
+                    </th>
+                    <td class="submissionStatus submissionStatus-warning">
+                        <div class="submissionStatus--bullet" aria-hidden="true"></div>
+                        <div class="submissionStatus--text">Incomplete</div>
+                    </td>
+                    <td>
+                        <div class="submissionTimeChart">
+                            <div class="progressBar">
+                                <div class="progressBar--fill" style="width: 45%"></div>
+                            </div>
+                            <div class="progressBar--caption">
+                                <time class="submissionTimeChart--releaseDate" datetime="2026-01-20 08:00:00 -0500">
+                                    Jan 20 at 8:00AM
+                                </time>
+                                <time class="submissionTimeChart--dueDate" 
+                                      datetime="2026-01-28 17:00:00 -0500"
+                                      aria-label="Due at January 28 at 5:00PM">
+                                    Jan 28 at 5:00PM
+                                </time>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Assignment 3: Midterm Project - Not Started -->
+                <tr role="row" class="odd">
+                    <th class="table--primaryLink" role="rowheader" scope="row">
+                        <button class="js-submitAssignment" 
+                                data-assignment-id="1003" 
+                                data-assignment-title="Midterm Project"
+                                aria-label="Submit Midterm Project">
+                            Midterm Project
+                        </button>
+                    </th>
+                    <td class="submissionStatus submissionStatus-warning">
+                        <div class="submissionStatus--bullet" aria-hidden="true"></div>
+                        <div class="submissionStatus--text">Not Started</div>
+                    </td>
+                    <td>
+                        <div class="submissionTimeChart">
+                            <div class="submissionTimeChart--dueDetails">
+                                <span class="submissionTimeChart--timeRemaining">20 days left</span>
+                            </div>
+                            <div class="progressBar">
+                                <div class="progressBar--fill" style="width: 10%"></div>
+                            </div>
+                            <div class="progressBar--caption">
+                                <time class="submissionTimeChart--releaseDate" datetime="2026-01-15 00:00:00 -0500">
+                                    Jan 15
+                                </time>
+                                <time class="submissionTimeChart--dueDate" 
+                                      datetime="2026-02-10 23:59:00 -0500"
+                                      aria-label="Due at February 10 at 11:59PM">
+                                    Feb 10 at 11:59PM
+                                </time>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Assignment 4: Weekly Reflection - Late -->
+                <tr role="row" class="even">
+                    <th class="table--primaryLink" role="rowheader" scope="row">
+                        <button class="js-submitAssignment" 
+                                data-assignment-id="1004" 
+                                data-assignment-title="Weekly Reflection"
+                                aria-label="Submit Weekly Reflection (Late)">
+                            Weekly Reflection
+                        </button>
+                    </th>
+                    <td class="submissionStatus submissionStatus-error">
+                        <div class="submissionStatus--bullet" aria-hidden="true"></div>
+                        <div class="submissionStatus--text">Late</div>
+                    </td>
+                    <td>
+                        <div class="submissionTimeChart submissionTimeChart-error">
+                            <div class="submissionTimeChart--dueDetails">
+                                <span class="submissionTimeChart--timeRemaining" style="color: #ea4335;">Past due</span>
+                            </div>
+                            <time class="submissionTimeChart--dueDate" 
+                                  datetime="2026-01-20 23:59:00 -0500"
+                                  aria-label="Due at January 20 at 11:59PM (Yesterday)">
+                                Jan 20 at 11:59PM (Yesterday)
+                            </time>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Assignment 5: Final Exam Prep - Locked -->
+                <tr role="row" class="odd">
+                    <th class="table--primaryLink" role="rowheader" scope="row">
+                        <button class="js-submitAssignment" 
+                                data-assignment-id="1005" 
+                                data-assignment-title="Final Exam Prep"
+                                aria-label="Final Exam Prep (Locked)"
+                                disabled>
+                            Final Exam Prep
+                        </button>
+                    </th>
+                    <td class="submissionStatus submissionStatus-info">
+                        <div class="submissionStatus--bullet" aria-hidden="true"></div>
+                        <div class="submissionStatus--text">Locked</div>
+                    </td>
+                    <td>
+                        <div class="submissionTimeChart">
+                            <div class="submissionTimeChart--dueDetails">
+                                <span class="submissionTimeChart--timeRemaining">Available later</span>
+                            </div>
+                            <time class="submissionTimeChart--dueDate" 
+                                  datetime="2026-05-15 23:59:00 -0400"
+                                  aria-label="Due at May 15 at 11:59PM">
+                                May 15 at 11:59PM
+                            </time>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <script>
+        // Log for testing purposes
+        console.log('[Test Page] Loaded with 5 sample assignments');
+        console.log('[Test Page] Expected assignments:');
+        console.log('  1. Calculus Quiz 1 - Jan 25, 2026 - Submitted');
+        console.log('  2. Physics Lab Report - Jan 28, 2026 - Incomplete');
+        console.log('  3. Midterm Project - Feb 10, 2026 - Not Started');
+        console.log('  4. Weekly Reflection - Jan 20, 2026 - Late');
+        console.log('  5. Final Exam Prep - May 15, 2026 - Locked');
+    </script>
+</body>
+</html>
