@@ -7,7 +7,7 @@
  * - "Ghost Window" management for auto-processing tasks
  */
 
-importScripts('calendar.js');
+importScripts('config.js', 'calendar.js');
 
 // Sync lock to prevent duplicate concurrent syncs
 let isSyncing = false;

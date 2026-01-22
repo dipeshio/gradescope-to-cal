@@ -1,1 +1,10 @@
+# Credentials
 client_ids_info/
+config.js
+
+# Logs
+logs/
+chatlogs/
+
+# OS
+.DS_Store

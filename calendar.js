@@ -3,10 +3,12 @@
  * 
  * Handles OAuth2 authentication and task creation.
  * Time is stored in notes for the calendar-content.js to parse and apply.
+ * 
+ * SETUP: Copy config.template.js to config.js and add your OAuth Client ID
  */
 
 const TASKS_API_BASE = 'https://tasks.googleapis.com/tasks/v1';
-const CLIENT_ID = '1021365920101-u8c5oe6hd4ogcumtjqbfgg3d22l62a1t.apps.googleusercontent.com';
+// CLIENT_ID comes from config.js (loaded before this file in background.js)
 const SCOPES = 'https://www.googleapis.com/auth/tasks';
 
 const TOKEN_KEY = 'google_access_token';
@@ -26,7 +28,7 @@ async function getAuthToken(interactive = true) {
     const redirectUrl = chrome.identity.getRedirectURL();
     const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
     
-    authUrl.searchParams.set('client_id', CLIENT_ID);
+    authUrl.searchParams.set('client_id', CONFIG.CLIENT_ID);
     authUrl.searchParams.set('redirect_uri', redirectUrl);
     authUrl.searchParams.set('response_type', 'token');
     authUrl.searchParams.set('scope', SCOPES);
