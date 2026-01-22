@@ -2,30 +2,22 @@
  * Google Tasks Integration for GradescopeToCal
  * 
  * Handles OAuth2 authentication and task creation.
- * Uses launchWebAuthFlow as primary method (works without Chrome sync).
- * 
- * NOTE: Google Tasks API only stores dates, not times. 
- * The time is included in the task notes instead.
+ * Time is stored in notes for the calendar-content.js to parse and apply.
  */
 
 const TASKS_API_BASE = 'https://tasks.googleapis.com/tasks/v1';
 const CLIENT_ID = '1021365920101-u8c5oe6hd4ogcumtjqbfgg3d22l62a1t.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/tasks';
 
-// Storage key for the access token
 const TOKEN_KEY = 'google_access_token';
 const TOKEN_EXPIRY_KEY = 'google_token_expiry';
 
 /**
  * Get OAuth2 access token using launchWebAuthFlow
- * @param {boolean} interactive - Whether to show login prompt
- * @returns {Promise<string>} Access token
  */
 async function getAuthToken(interactive = true) {
     const cached = await getCachedToken();
-    if (cached) {
-        return cached;
-    }
+    if (cached) return cached;
     
     if (!interactive) {
         throw new Error('No cached token and interactive mode disabled');
@@ -80,15 +72,11 @@ async function getAuthToken(interactive = true) {
     });
 }
 
-/**
- * Get cached token if still valid
- */
 async function getCachedToken() {
     return new Promise((resolve) => {
         chrome.storage.local.get([TOKEN_KEY, TOKEN_EXPIRY_KEY], (result) => {
             const token = result[TOKEN_KEY];
             const expiry = result[TOKEN_EXPIRY_KEY];
-            
             if (token && expiry && Date.now() < expiry - 300000) {
                 resolve(token);
             } else {
@@ -98,105 +86,68 @@ async function getCachedToken() {
     });
 }
 
-/**
- * Remove cached auth token
- */
 async function removeCachedToken() {
     return new Promise((resolve) => {
-        chrome.storage.local.remove([TOKEN_KEY, TOKEN_EXPIRY_KEY], () => {
-            resolve();
-        });
+        chrome.storage.local.remove([TOKEN_KEY, TOKEN_EXPIRY_KEY], () => resolve());
     });
 }
 
 /**
- * Check if the assignment name is just a due date (like "Due 1/23")
- * @param {string} name - Assignment name
- * @returns {boolean} True if name is a date-like pattern
+ * Check if assignment name is just a due date
  */
 function isDateOnlyName(name) {
-    // Matches patterns like "Due 1/23", "Due 01/23", "Due Jan 23", etc.
     const datePatterns = [
-        /^Due\s+\d{1,2}\/\d{1,2}/i,       // Due 1/23
-        /^Due\s+\d{1,2}-\d{1,2}/i,         // Due 1-23
-        /^Due\s+[A-Za-z]+\s+\d{1,2}/i,     // Due Jan 23
-        /^\d{1,2}\/\d{1,2}/,               // 1/23
-        /^Assignment\s+\d+$/i,             // Assignment 1
-        /^HW\s*\d+$/i,                     // HW1, HW 1
+        /^Due\s+\d{1,2}\/\d{1,2}/i,
+        /^Due\s+\d{1,2}-\d{1,2}/i,
+        /^Due\s+[A-Za-z]+\s+\d{1,2}/i,
+        /^\d{1,2}\/\d{1,2}/,
+        /^Assignment\s+\d+$/i,
+        /^HW\s*\d+$/i,
     ];
-    
     return datePatterns.some(pattern => pattern.test(name.trim()));
 }
 
 /**
- * Generate a proper task title based on assignment name and course
- * @param {Object} assignment - Assignment object
- * @param {string} courseName - Course name (e.g., "MATH 241")
- * @returns {string} Formatted task title
+ * Generate task title
  */
 function formatTaskTitle(assignment, courseName = 'MATH 241') {
     const name = assignment.name.trim();
-    
-    // If the name is just a due date pattern, use courseName + "Assignment"
     if (isDateOnlyName(name)) {
         return `📚 ${courseName} Assignment`;
     }
-    
-    // Otherwise use the actual assignment name
     return `📚 ${name}`;
 }
 
 /**
- * Format the due date for Google Tasks API
- * Google Tasks only supports date (not time), so we use YYYY-MM-DD format
- * 
- * IMPORTANT: We need to use the local date, not UTC, to avoid date shifting
- * 
- * @param {string} rawDate - ISO date string
- * @returns {string} Date in YYYY-MM-DD format
+ * Parse due date and time
  */
-function formatDueDate(rawDate) {
+function parseDueDateTime(rawDate) {
     const date = new Date(rawDate);
     
-    // Use local date components to avoid timezone shifting
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    // Check for 11:59 PM -> adjust to 11:45 PM
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
     
-    return `${year}-${month}-${day}T00:00:00.000Z`;
+    if (hours === 23 && minutes === 59) {
+        hours = 23;
+        minutes = 45;
+    }
+    
+    return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+        hours,
+        minutes,
+        // Format for notes (12hr)
+        timeStr: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+        // Format for API (date only)
+        dateStr: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T00:00:00.000Z`
+    };
 }
 
 /**
- * Format the time for display in notes
- * @param {string} rawDate - ISO date string
- * @returns {string} Formatted time string (e.g., "10:00 PM")
- */
-function formatDueTime(rawDate) {
-    const date = new Date(rawDate);
-    return date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    });
-}
-
-/**
- * Format full date for notes
- * @param {string} rawDate - ISO date string
- * @returns {string} Formatted date string
- */
-function formatFullDate(rawDate) {
-    const date = new Date(rawDate);
-    return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-    });
-}
-
-/**
- * Get or create a task list for Gradescope assignments
+ * Get or create task list
  */
 async function getOrCreateTaskList(token) {
     const listTitle = 'Gradescope Assignments';
@@ -208,9 +159,7 @@ async function getOrCreateTaskList(token) {
     if (listsResponse.ok) {
         const listsData = await listsResponse.json();
         const existingList = listsData.items?.find(list => list.title === listTitle);
-        if (existingList) {
-            return existingList.id;
-        }
+        if (existingList) return existingList.id;
     }
     
     const createResponse = await fetch(`${TASKS_API_BASE}/users/@me/lists`, {
@@ -222,36 +171,32 @@ async function getOrCreateTaskList(token) {
         body: JSON.stringify({ title: listTitle })
     });
     
-    if (!createResponse.ok) {
-        throw new Error('Failed to create task list');
-    }
-    
+    if (!createResponse.ok) throw new Error('Failed to create task list');
     const newList = await createResponse.json();
     return newList.id;
 }
 
 /**
- * Create a Google Task for an assignment
+ * Create task with time info in notes
+ * The calendar-content.js will parse this and auto-fill the time
  */
-async function createTask(token, listId, assignment, courseName = 'MATH 241') {
+async function createTask(token, listId, assignment, courseName) {
     const title = formatTaskTitle(assignment, courseName);
-    const dueDate = formatDueDate(assignment.rawDate);
-    const dueTime = formatDueTime(assignment.rawDate);
-    const fullDate = formatFullDate(assignment.rawDate);
+    const dt = parseDueDateTime(assignment.rawDate);
     
-    // Build detailed notes since API doesn't support due time
+    // Notes include time in a format our calendar script can parse
     const notes = [
-        `⏰ Due: ${fullDate} at ${dueTime}`,
+        `⏰ Due: ${dt.timeStr}`,
         `📊 Status: ${assignment.status}`,
-        `📝 Original name: ${assignment.name}`,
+        `📝 Original: ${assignment.name}`,
         '',
-        'Created by GradescopeToCal Extension'
+        'Created by GradescopeToCal'
     ].join('\n');
     
     const task = {
         title: title,
         notes: notes,
-        due: dueDate
+        due: dt.dateStr
     };
     
     const response = await fetch(`${TASKS_API_BASE}/lists/${listId}/tasks`, {
@@ -272,25 +217,21 @@ async function createTask(token, listId, assignment, courseName = 'MATH 241') {
 }
 
 /**
- * Check if a task for this assignment already exists
+ * Check if task already exists
  */
-async function taskExists(token, listId, assignment, courseName = 'MATH 241') {
+async function taskExists(token, listId, assignment, courseName) {
     const response = await fetch(
         `${TASKS_API_BASE}/lists/${listId}/tasks?showCompleted=true&showHidden=true`,
         { headers: { 'Authorization': `Bearer ${token}` } }
     );
     
-    if (!response.ok) {
-        return false;
-    }
+    if (!response.ok) return false;
     
     const data = await response.json();
     const searchTitle = formatTaskTitle(assignment, courseName);
     
-    // Also check if original name is in notes (for duplicates)
     return data.items?.some(task => {
         if (task.title === searchTitle) {
-            // Check notes for original name to avoid duplicates
             return task.notes?.includes(assignment.name);
         }
         return false;

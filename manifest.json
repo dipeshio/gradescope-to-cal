@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "GradescopeToCal",
-    "version": "1.1.0",
-    "description": "Automatically scrapes Gradescope assignments and syncs them to Google Calendar.",
+    "version": "1.3.1",
+    "description": "Automatically scrapes Gradescope assignments and syncs them to Google Tasks with time support.",
     "icons": {
         "16": "assets/icons/icon16.png",
         "48": "assets/icons/icon48.png",
@@ -24,7 +24,9 @@
     ],
     "host_permissions": [
         "https://www.gradescope.com/*",
-        "https://www.googleapis.com/*"
+        "https://www.googleapis.com/*",
+        "https://calendar.google.com/*",
+        "https://tasks.google.com/*"
     ],
     "oauth2": {
         "client_id": "1021365920101-u8c5oe6hd4ogcumtjqbfgg3d22l62a1t.apps.googleusercontent.com",
@@ -43,6 +45,19 @@
                 "http://127.0.0.1:8000/*"
             ],
             "js": ["content.js"],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": ["https://calendar.google.com/*"],
+            "js": ["calendar-content.js"],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://tasks.google.com/*", 
+                "https://calendar.google.com/*"
+            ],
+            "js": ["tasks-content.js"],
             "run_at": "document_idle"
         }
     ]

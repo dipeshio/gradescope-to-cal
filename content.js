@@ -37,10 +37,38 @@ function scrapeAssignments() {
             return assignments;
         }
         
+        // Calculate cutoff date (1 day ago)
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+        oneDayAgo.setHours(0, 0, 0, 0);
+        
+        // Known actionable statuses (include common variations)
+        const ACTIONABLE_STATUSES = ['No Submission', 'Not Submitted', 'Incomplete', 'Not Started', 'Missing', 'Late'];
+        
         rows.forEach((row, index) => {
             try {
                 const assignment = extractAssignmentData(row);
                 if (assignment) {
+                    // Filter out submitted/graded assignments
+                    if (assignment.status === 'Submitted' || assignment.status === 'Graded') {
+                        return;
+                    }
+                    
+                    // Filter out past assignments (due date > 1 day ago)
+                    if (assignment.rawDate) {
+                        const dueDate = new Date(assignment.rawDate);
+                        if (dueDate < oneDayAgo) {
+                            console.log(`[GradescopeToCal] Skipping past: ${assignment.name} (due ${assignment.dueDate})`);
+                            return;
+                        }
+                    }
+                    
+                    // Filter out unknown statuses (only sync actionable ones)
+                    if (assignment.status && !ACTIONABLE_STATUSES.includes(assignment.status)) {
+                        console.log(`[GradescopeToCal] Skipping unknown status: ${assignment.name} (${assignment.status})`);
+                        return;
+                    }
+                    
                     assignment.id = index;
                     assignments.push(assignment);
                 }
@@ -49,7 +77,7 @@ function scrapeAssignments() {
             }
         });
         
-        console.log('[GradescopeToCal] Successfully scraped', assignments.length, 'assignments');
+        console.log('[GradescopeToCal] Successfully scraped', assignments.length, 'upcoming assignments');
         
     } catch (err) {
         console.error('[GradescopeToCal] Error during scraping:', err.message);
@@ -159,13 +187,26 @@ function getStatusType(status) {
 }
 
 /**
+ * Extracts course name from the page header
+ * @returns {string} Course name or fallback
+ */
+function getCourseName() {
+    const titleEl = document.querySelector('.courseHeader--title');
+    return titleEl?.textContent?.trim() || 'Gradescope';
+}
+
+/**
  * Sends scraped assignments to the background script for storage
  * @param {Array<Object>} assignments - Array of assignment objects
  */
 function sendToBackground(assignments) {
+    const courseName = getCourseName();
+    console.log('[GradescopeToCal] Course detected:', courseName);
+    
     chrome.runtime.sendMessage({
         action: 'assignmentsScraped',
-        data: assignments
+        data: assignments,
+        courseName: courseName
     }).then(response => {
         if (response?.success) {
             console.log('[GradescopeToCal] Assignments sent to background successfully');
