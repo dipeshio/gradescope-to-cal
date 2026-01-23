@@ -83,7 +83,7 @@
                 // Cold Start Safety: If we haven't processed anything yet, wait a bit for UI hydration
             if (processedTasks.size === 0 && candidates.length > 0) {
                 console.log('[GradescopeToCal] ❄️ Cold start: Waiting 250ms for UI to settle...');
-                await sleep(250);
+                await sleep(350);
             }
             
             for (const task of candidates) {
@@ -104,7 +104,7 @@
                     // Try clicking to expand if we are "background" and maybe simulated click helps?
                     console.log('[GradescopeToCal] Date chip not found, clicking to expand...');
                     task.click();
-                    await sleep(250);
+                    await sleep(350);
                     
                     dateChip = document.querySelector('div[aria-label^="Scheduled for"]');
                 }
@@ -144,7 +144,7 @@
                 // Notify background script that a task was processed
                 chrome.runtime.sendMessage({ action: 'taskProcessed' });
                 
-                await sleep(75); 
+                await sleep(150); 
             }
         } catch (e) {
             console.error('[GradescopeToCal] Error in loop:', e);
@@ -155,7 +155,7 @@
 
     async function performTimeSettingFlow(dateChip, timeString) {
         dateChip.click();
-        await sleep(75);  // Relaxed from 50ms -> 75ms
+        await sleep(150);  // Relaxed from 50ms -> 75ms
         
         const timeInput = document.querySelector('input[aria-label="Set time"], input[placeholder="Set time"]');
         
@@ -172,11 +172,11 @@
         timeInput.scrollIntoView({ block: "center", behavior: "instant" });
         document.execCommand('insertText', false, timeString);
         timeInput.dispatchEvent(new Event('input', { bubbles: true }));
-        await sleep(40);
+        await sleep(80);
         
         timeInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         
-        await sleep(40);
+        await sleep(80);
         
         const buttons = Array.from(document.querySelectorAll('button, div[role="button"]'));
         const doneButton = buttons.find(b => b.innerText === 'Done' || b.textContent === 'Done');
@@ -185,7 +185,7 @@
             doneButton.click();
         } 
         
-        await sleep(40);  // Relaxed from 20ms -> 40ms
+        await sleep(80);  // Relaxed from 20ms -> 40ms
     }
 
     function sleep(ms) {
