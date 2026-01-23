@@ -83,7 +83,7 @@
                 // Cold Start Safety: If we haven't processed anything yet, wait a bit for UI hydration
             if (processedTasks.size === 0 && candidates.length > 0) {
                 console.log('[GradescopeToCal] ❄️ Cold start: Waiting 250ms for UI to settle...');
-                await sleep(350);
+                await sleep(250);
             }
             
             for (const task of candidates) {
@@ -168,15 +168,17 @@
         timeInput.click();
         timeInput.focus();
         timeInput.select();
+
+        const setTime = 60;
         
         timeInput.scrollIntoView({ block: "center", behavior: "instant" });
         document.execCommand('insertText', false, timeString);
         timeInput.dispatchEvent(new Event('input', { bubbles: true }));
-        await sleep(80);
+        await sleep(setTime);
         
         timeInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
         
-        await sleep(80);
+        await sleep(setTime);
         
         const buttons = Array.from(document.querySelectorAll('button, div[role="button"]'));
         const doneButton = buttons.find(b => b.innerText === 'Done' || b.textContent === 'Done');
@@ -185,7 +187,7 @@
             doneButton.click();
         } 
         
-        await sleep(80);  // Relaxed from 20ms -> 40ms
+        await sleep(setTime);  // Relaxed from 20ms -> 40ms
     }
 
     function sleep(ms) {
