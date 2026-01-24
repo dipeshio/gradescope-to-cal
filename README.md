@@ -1,15 +1,19 @@
-# 📅 gradescope-calendar-sync
+# gradescope-calendar-sync
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Chrome extension that reads Gradescope assignments and creates calendar entries.
 
-A Chrome extension that automatically syncs Gradescope assignment deadlines to Google Calendar for streamlined scheduling.
+## Structure
+- manifest.json – extension manifest
+- background.js, content.js, calendar*.js – scraping and sync logic
+- assets/ – icons
+- package.json – dev dependencies
+- config.template.js – example config values
 
-## Setup
-
-1. Open `chrome://extensions`
-2. Enable Developer Mode
-3. Load unpacked extension
+## Install (development)
+```bash
+npm install
+```
+Load the folder as an unpacked extension via chrome://extensions (Developer Mode). If you customize code, rebuild assets as needed, then reload the unpacked extension.
 
 ## License
-
-MIT © 2026 dipeshio
+MIT
